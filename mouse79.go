@@ -42,6 +42,7 @@ func interactive()  {
     var new_alp_num map[string]string = make(map[string]string)
     is_if := true
     is_str := false
+    is_loop := true
     for loop {
         fmt.Print(">> ")
         scan := bufio.NewScanner(os.Stdin)
@@ -50,7 +51,24 @@ func interactive()  {
             input = scan.Text()
         }
         res := tokenize(input)
-        for _, token := range res {
+        var token string
+        index := 0
+        var loop_index int
+        for index < len(res) {
+            token = res[index]
+            if token == "]" {
+                is_if = true
+                index += 1
+                continue
+            }
+            if !is_if {
+                index += 1
+                continue
+            }
+            if !is_loop {
+                index += 1
+                continue
+            }
             if (token[0] == '"') || (token[len(token) - 1] == '"') || is_str {
                 if (token[0] == '"' && token[len(token) - 1] == '"') {
                     for ch := 1; ch < len(token) - 1; ch++ {
@@ -62,6 +80,7 @@ func interactive()  {
                     }
                     fmt.Println()
                     is_str = false
+                    index += 1
                     continue
                 } else if token[0] == '"' {
                     for ch := 1; ch < len(token); ch++ {
@@ -73,6 +92,7 @@ func interactive()  {
                     }
                     fmt.Print(" ")
                     is_str = true
+                    index += 1
                     continue
                 } else if token[len(token) - 1] == '"' {
                     for ch := 0; ch < len(token) - 1; ch++ {
@@ -84,6 +104,7 @@ func interactive()  {
                     }
                     fmt.Println()
                     is_str = false
+                    index += 1
                     continue
                 } else {
                     for ch := 0; ch < len(token); ch++ {
@@ -95,16 +116,25 @@ func interactive()  {
                     }
                     fmt.Print(" ")
                     is_str = true
+                    index += 1
                     continue
                 }
             }
-            if token == "]" {
-                is_if = true
-            }
-            if !is_if {
-                continue
-            }
             switch token {
+            case "(":
+                loop_index = index
+            case "^":
+                top_ele, err := strconv.Atoi(pop_stack(&stack))
+                if err != nil {
+                    fmt.Println("Error converting string to int")
+                }
+                if top_ele <= 0 {
+                    is_loop = false
+                }
+            case ")":
+                if is_loop {
+                    index = loop_index
+                }
             case "[":
                 top_ele, err := strconv.Atoi(pop_stack(&stack))
                 if err != nil {
@@ -113,11 +143,9 @@ func interactive()  {
                 if top_ele <= 0 {
                     is_if = false
                 }
-            case "]":
-                continue
             case "+", "-", "*", "/":
-                second_ele, err1 := strconv.Atoi(pop_stack(&stack))
-                first_ele, err2 := strconv.Atoi(pop_stack(&stack))
+                first_ele, err1 := strconv.Atoi(pop_stack(&stack))
+                second_ele, err2 := strconv.Atoi(pop_stack(&stack))
                 if err1 != nil || err2 != nil {
                     fmt.Println("Error converting string to int")
                 }
@@ -164,11 +192,13 @@ func interactive()  {
             default:
                 stack = push_stack(stack, token)
             }
+            index += 1
         }
         fmt.Println("Contents of the stack:")
         for i := len(stack) - 1; i >= 0; i-- {
-            fmt.Println(stack[i])
+            fmt.Print(stack[i], " ")
         }
+        fmt.Println()
     }
 }
 

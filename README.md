@@ -1,6 +1,6 @@
 # Mouse
 
-Mouse Interpreter in Go. Mouse is an interpreted, stack-based programming language and uses Reverse Polish notation.
+Mouse Interpreter in Go. Mouse is an interpreted, stack-based programming language and uses Reverse Polish notation. Implemented using this [reference material](http://mouse.davidgsimpson.com/mouse79/index.html).
 
 ## Quick Start
 
